@@ -1,37 +1,36 @@
-from clima import *  
-from storage import *
-consultas, seg_cuidades = cargar_historial()
+from clima import obtener_clima, extraer_clima
+from DB_traker_clima import guardar_ciudad_clima,cargar_ciudad_Clima,eliminar_ciudad
+from clases import CiudadClima
+from datetime import datetime
 
-def main_menu():
-    while True:
-        try:
-            print("1) Ver clima de alguna cuidad")
-            print("2) añadir seguimiento de una cuidad")
-            print("3) Ver cuidades en seguimiento")
-            print("4) Editar Hora de seguimiento")
-            print("5) Eliminar cuidad en seguimiento")
-            print("6) ver histrial de consultas")
-            print("7) salir")
-            opcion = int(input("Seleccione una opción: "))
-            return opcion
-        except ValueError:
-            print("Seleccione una opción valida")
+def consulta(ciudad):
+    print(ciudad)
+    datos = obtener_clima(ciudad)
 
-def clima_cuidad(consultas, seg_cuidades):
-    cuidad = input("Introduzca la cuidad: ")
-    datos = obtener_clima(cuidad)
     if datos is None:
         print("Ciudad no encontrada")
     else:
         informacion = extraer_clima(datos)
-        print(informacion)
-        consultas.append(informacion)
-        guardar_consulta(consultas,seg_cuidades)
+        fecha_consulta = datetime.now()
+        hora_actual = fecha_consulta.strftime("%H:%M")
+        fecha_actual = fecha_consulta.strftime("%d/%m/%Y")
 
-def seguimiento_cuidad(consultas,seg_cuidades):
+        informacion["Hora_Consulta"] = hora_actual
+        informacion["Fecha_Consulta"] = fecha_actual
+        print(informacion)
+
+        id = 0
+        tipo = "Consulta"
+        clima = CiudadClima(id=id, tipo=tipo, datos=informacion)
+
+        guardar_ciudad_clima(clima)
+        return informacion
+
+def seguimiento_cuidad():
+    consultas, seg_ciudades = cargar_ciudad_Clima()
     ciudad_s = input("Introduzca la cuidad: ")
-    for ciudad in seg_cuidades:
-        if ciudad["Ciudad"] == ciudad_s:
+    for ciudad in seg_ciudades:
+        if ciudad.ciudad == ciudad_s:
             print("Esta cuidad ya esta en la lista de seguimiento")
             return
         
@@ -46,81 +45,67 @@ def seguimiento_cuidad(consultas,seg_cuidades):
                 if int(partes[0]) <= 23 and int(partes[1]) <= 59:
                     informacion = extraer_clima(datos)
                     informacion["Hora"] = hora
-                    seg_cuidades.append(informacion)
-                    guardar_consulta(consultas,seg_cuidades)
+
+                    id = 0
+                    tipo = "Seguimiento"
+                    print(informacion)
+
+                    clima = CiudadClima(id=id, tipo=tipo, datos=informacion)
+                    guardar_ciudad_clima(clima)
                     print("Se añadio la cuidad a la lista de seguimiento")
                 else:
                     print("Hora incorrecta")
         else:
             print("Formato incorrecto")
 
-def mostras_seguimiento(seg_cuidades):
-    if len(seg_cuidades) == 0:
+def mostras_seguimiento():
+    consultas, seg_ciudades = cargar_ciudad_Clima()
+    if len(seg_ciudades) == 0:
         confirmacion = input("No hay ciudades en seguimiento, ¿desea añadir una? (S/N): ").lower()
         if confirmacion in ("s","si"):
-            seguimiento_cuidad(seg_cuidades)
+            seguimiento_cuidad()
             return
     else:
-        print(seg_cuidades)
+        for ciudad in seg_ciudades:
+            print(f"| Ciudad: {ciudad.ciudad} | Pais: {ciudad.pais} | Temperatura: {ciudad.temperatura} |")
 
-def editar(seg_cuidades,consultas):
+def editar():
+    consutlas, seg_ciudades = cargar_ciudad_Clima()
     ciudad_e = input("Introduzca la ciudad que quieres editar: ")
-    for ciudad in seg_cuidades:
-        if ciudad["Ciudad"] == ciudad_e:
-            print(ciudad_e)
+    for ciudad in seg_ciudades:
+        if ciudad.ciudad == ciudad_e:
             hora = input("ingrese la hora para notificar el seguimiento en formato HH:MM ")
             if len(hora) == 5 and hora[2] == ":":
                 partes = hora.split(":")
                 if partes[0].isdigit() and partes[1].isdigit():
                     if int(partes[0]) <= 23 and int(partes[1]) <= 59:
-                        ciudad["Hora"] = hora
-                        guardar_consulta(seg_cuidades,consultas)
+                        ciudad.hora = hora
+                        eliminar_ciudad(informacion=ciudad)
+                        guardar_ciudad_clima(informacion=ciudad)
                         print(f"Se a editado la ciudad: {ciudad_e} a nuevo horario de {hora}")
                         return
                     else:
                         print("Hora incorrecta")
     print("Ciudad no encontrada")
 
-def eliminar(consultas,seg_cuidades):
+def eliminar():
+    consultas, seg_ciudades = cargar_ciudad_Clima()
     ciudad_eliminar = input("Introduzca el nombre de la cuidad que no desea seguir: ").title()
-    for ciudad in seg_cuidades:
-        if ciudad["Ciudad"] == ciudad_eliminar:
+    for ciudad in seg_ciudades:
+        if ciudad.ciudad == ciudad_eliminar:
+            eliminar_ciudad(informacion=ciudad)
             print("Se elimino el seguimiento de: ",ciudad)
-            seg_cuidades.remove(ciudad)
-            guardar_consulta(consultas,seg_cuidades)
             return
     print("No se encontro la cuidad")
 
 
-def historial_consultas(consultas):
+def historial_consultas():
+    consultas, seg_ciudades = cargar_ciudad_Clima()
     if len(consultas) == 0:
             confirmacion = input("NO hay consultas registradas, ¿desea hacer una? (S/N): ").lower()
             if confirmacion in ("s","si"):
-                clima_cuidad(consultas)
+                consulta()
     else:
         for consulta in consultas:
-            print(consulta)
-    print("\n Ha consultado un total de: ", len(consultas),"veces")
-    
-
-if __name__ == "__main__":
-    while True:
-        opcion = main_menu()
-        if opcion == 1:
-            clima_cuidad(consultas,seg_cuidades)
-        elif opcion == 2:
-            seguimiento_cuidad(consultas,seg_cuidades)
-        elif opcion == 3:
-            mostras_seguimiento(seg_cuidades)
-        elif opcion == 4:
-            editar(seg_cuidades,consultas)
-        elif opcion == 5:
-            eliminar(consultas,seg_cuidades)
-        elif opcion == 6:
-            historial_consultas(consultas)
-        elif opcion == 7:
-            confirmacion = input("¿Seguro que desea salir? (S/N): ").lower()
-            if confirmacion in ("s","si"):
-                break
-        else:
-            print("Valor no valido")
+            print(f"| Ciudad: {consulta.ciudad} | Pais: {consulta.pais} | Temperatura: {consulta.temperatura} |")
+            print("\n Ha consultado un total de: ", len(consultas),"veces")

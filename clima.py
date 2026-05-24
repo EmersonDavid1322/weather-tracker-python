@@ -1,5 +1,5 @@
 import requests
-from config_datos import API_KEY
+from config import API_KEY
 def obtener_clima(ciudad):
     url = f"https://api.openweathermap.org/data/2.5/weather?q={ciudad}&appid={API_KEY}&units=metric&lang=es"
     try:
@@ -20,5 +20,12 @@ def extraer_clima(datos):
         "Sensación": datos["main"]["feels_like"],
         "Humedad": datos["main"]["humidity"],
         "Descripción": datos["weather"][0]["description"],
-        "Velocidad": datos["wind"]["speed"]
+        "Velocidad": datos["wind"]["speed"],
+        "Presión":datos["main"]["pressure"],
+        "Visibilidad": datos["visibility"] / 1000,
+        "Amanecer": datos["sys"]["sunrise"],
+        "Atardecer": datos["sys"]["sunset"],
+        "lat": datos['coord']['lat'],
+        "lon": datos['coord']['lon'],
+        "icon": datos["weather"][0]["icon"]
     }

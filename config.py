@@ -1,0 +1,2 @@
+API_KEY = "9d5532c0efdd021c0a57ed8833d9022f"
+WEBHOOK_URL = "https://discordapp.com/api/webhooks/1492578819335393372/2UeEkIJcOQZrtOYFek2y-AeCsnKmR-uUMpuOByDXXhsGXIJkHAjKA10Bv5tAm6EXNm21"

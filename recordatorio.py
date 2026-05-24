@@ -1,15 +1,14 @@
 import requests
-from storage import cargar_historial
-from clima import *
+from DB_traker_clima import cargar_ciudad_Clima
+from clima import obtener_clima, extraer_clima
 import os
-from config_datos import WEBHOOK_URL
+from config import WEBHOOK_URL
 from datetime import datetime
-os.chdir("/home/emersondavid/Documentos/P/Phyton/Programa_De_Practica/Proyectos/traker_clima")
 
 def enviar_discord():
     mensajes = []
     hora_actual = datetime.now().strftime("%H:%M")
-    consultas, seg_cuidades = cargar_historial()
+    consultas, seg_cuidades = cargar_ciudad_Clima()
     for consulta in seg_cuidades:
         if hora_actual == consulta["Hora"]:
             nombre = consulta["Ciudad"]
