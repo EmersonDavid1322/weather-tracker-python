@@ -26,37 +26,30 @@ def consulta(ciudad):
         guardar_ciudad_clima(clima)
         return informacion
 
-def seguimiento_cuidad():
+def seguimiento_cuidad(ciudad_s,hora):
     consultas, seg_ciudades = cargar_ciudad_Clima()
-    ciudad_s = input("Introduzca la cuidad: ")
+    estado = None
     for ciudad in seg_ciudades:
         if ciudad.ciudad == ciudad_s:
-            print("Esta cuidad ya esta en la lista de seguimiento")
-            return
+            estado = "Repetida"
+            return estado
         
     datos = obtener_clima(ciudad_s)
     if datos is None:
-        print("Ciudad no encontrada")
+        estado = "No encontrada"
+        return estado
     else:
-        hora = input("ingrese la hora para notificar el seguimiento en formato HH:MM ")
-        if len(hora) == 5 and hora[2] == ":":
-            partes = hora.split(":")
-            if partes[0].isdigit() and partes[1].isdigit():
-                if int(partes[0]) <= 23 and int(partes[1]) <= 59:
-                    informacion = extraer_clima(datos)
-                    informacion["Hora"] = hora
+        informacion = extraer_clima(datos)
+        informacion["Hora"] = hora
 
-                    id = 0
-                    tipo = "Seguimiento"
-                    print(informacion)
+        id = 0
+        tipo = "Seguimiento"
 
-                    clima = CiudadClima(id=id, tipo=tipo, datos=informacion)
-                    guardar_ciudad_clima(clima)
-                    print("Se añadio la cuidad a la lista de seguimiento")
-                else:
-                    print("Hora incorrecta")
-        else:
-            print("Formato incorrecto")
+
+        clima = CiudadClima(id=id, tipo=tipo, datos=informacion)
+        guardar_ciudad_clima(clima)
+        estado =  "Completo"
+        return estado 
 
 def mostras_seguimiento():
     consultas, seg_ciudades = cargar_ciudad_Clima()

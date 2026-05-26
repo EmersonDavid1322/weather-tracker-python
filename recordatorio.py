@@ -1,7 +1,6 @@
 import requests
 from DB_traker_clima import cargar_ciudad_Clima
 from clima import obtener_clima, extraer_clima
-import os
 from config import WEBHOOK_URL
 from datetime import datetime
 

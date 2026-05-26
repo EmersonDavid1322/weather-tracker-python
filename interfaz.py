@@ -6,7 +6,7 @@ import requests
 from datetime import datetime
 import webbrowser
 from DB_traker_clima import crear_tablas
-from main_menu import consulta
+from servicios import consulta, seguimiento_cuidad
 
 crear_tablas()
 
@@ -17,18 +17,42 @@ class VentanaMenu(ctk.CTk):
         self.geometry("600x400")
 
         #CONSULTA
-        self.consulta_lbl = ctk.CTkLabel(self, text="Consulta", font=("Roboto", 15, "bold"))
-        self.consulta_lbl.pack(pady=5)
+        self.ciudad = ctk.CTkEntry(self, placeholder_text="Nombre de la ciudad...", width=200)
+        self.ciudad.pack(pady=10)
 
-        self.consulta = ctk.CTkEntry(self, placeholder_text="Nombre de la ciudad...", width=200)
-        self.consulta.pack(pady=10)
-
-        self.btn_consulta = ctk.CTkButton(self, text="Listo", width=50, command= lambda: self.ejecutar_consulta())
+        self.btn_consulta = ctk.CTkButton(self, text="Consultar", width=50, command= lambda: self.ejecutar_consulta())
         self.btn_consulta.pack(pady=10)
+
+        #SEGIMIENTO
+        self.segi_lbl = ctk.CTkLabel(self,text="Hora Seguimiento",font=("Roboto", 15, "bold"))
+        self.segi_lbl.pack(pady=10)
+
+        #HORA
+        self.frame_tiempo = ctk.CTkFrame(self, fg_color="transparent")
+        self.frame_tiempo.pack(pady=10)
+
+        horas_validas = [f"{i:02d}" for i in range(24)]
+        self.combo_hora = ctk.CTkOptionMenu(self.frame_tiempo, values=horas_validas, width=70)
+        self.combo_hora.pack(side="left", padx=5)
+
+        self.lbl_puntos = ctk.CTkLabel(self.frame_tiempo, text=":", font=("Roboto", 20))
+        self.lbl_puntos.pack(side="left")
+
+        minutos_validos = [f"{i:02d}" for i in range(60)]
+        self.combo_minutos = ctk.CTkOptionMenu(self.frame_tiempo, values=minutos_validos, width=70)
+        self.combo_minutos.pack(side="left", padx=5)
+
+        #BOTON
+        self.btn_seguir = ctk.CTkButton(self, text="Seguir", width=50, command= lambda: self.ejecutar_seguimiento())
+        self.btn_seguir.pack(pady=10)
+
+        #Info
+        self.info_lbl = ctk.CTkLabel(self, text="", text_color="Red",font=("Roboto", 15))
+        self.info_lbl.pack(pady=20)
 
 
     def ejecutar_consulta(self):
-        ciudad = self.consulta.get()
+        ciudad = self.ciudad.get()
         clima = consulta(ciudad=ciudad)
         if not ciudad:
             messagebox.showerror("Consulta", "Debe de colocar alguna ciudad antes de hacer la petición")
@@ -38,7 +62,19 @@ class VentanaMenu(ctk.CTk):
             return
         self.ventanaconsulta = VentanaConsulta(datos=clima)
 
+    def ejecutar_seguimiento(self):
+        ciudad = self.ciudad.get()
+        hora = f"{self.combo_hora.get()}:{self.combo_minutos.get()}"
+        estado = seguimiento_cuidad(ciudad_s=ciudad,hora=hora)
 
+        if estado == "Repetida":
+            self.info_lbl.configure(text="Error: Ciudad repetida en la lista de seguimiento")
+            return
+        elif estado == "No encontrada":
+            self.info_lbl.configure(text="Error: Ciudad no encontrada o Conexión a internet fallida")
+            return
+        elif estado == "Completo":
+            self.info_lbl.configure(text="Ciudad añadida correctamente",text_color="green")
 
 class VentanaConsulta(ctk.CTkToplevel):
     def __init__(self,datos):
