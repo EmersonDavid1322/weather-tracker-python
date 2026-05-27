@@ -55,12 +55,14 @@ def mostras_seguimiento():
     consultas, seg_ciudades = cargar_ciudad_Clima()
     if len(seg_ciudades) == 0:
         confirmacion = input("No hay ciudades en seguimiento, ¿desea añadir una? (S/N): ").lower()
-        if confirmacion in ("s","si"):
-            seguimiento_cuidad()
-            return
+        return None
     else:
+        seguimiento_lista = []
         for ciudad in seg_ciudades:
-            print(f"| Ciudad: {ciudad.ciudad} | Pais: {ciudad.pais} | Temperatura: {ciudad.temperatura} |")
+            seguimiento_lista.append(ciudad)
+            print(f"| Ciudad: {ciudad.ciudad} | Pais: {ciudad.pais} | Hora: {ciudad.hora} |")
+
+        return seguimiento_lista
 
 def editar():
     consutlas, seg_ciudades = cargar_ciudad_Clima()

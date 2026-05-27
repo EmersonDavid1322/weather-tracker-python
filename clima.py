@@ -1,5 +1,6 @@
 import requests
 from config import API_KEY
+
 def obtener_clima(ciudad):
     url = f"https://api.openweathermap.org/data/2.5/weather?q={ciudad}&appid={API_KEY}&units=metric&lang=es"
     try:

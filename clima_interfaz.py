@@ -10,11 +10,13 @@ from servicios import consulta, seguimiento_cuidad
 
 crear_tablas()
 
-class VentanaMenu(ctk.CTk):
-    def __init__(self):
+class VentanaClima(ctk.CTkToplevel):
+    def __init__(self,menu_principal):
         super().__init__()
         self.title("Clima")
         self.geometry("600x400")
+
+        self.menu_principal = menu_principal
 
         #CONSULTA
         self.ciudad = ctk.CTkEntry(self, placeholder_text="Nombre de la ciudad...", width=200)
@@ -50,20 +52,32 @@ class VentanaMenu(ctk.CTk):
         self.info_lbl = ctk.CTkLabel(self, text="", text_color="Red",font=("Roboto", 15))
         self.info_lbl.pack(pady=20)
 
+        #volver al menu
+        self.btn_volver = ctk.CTkButton(self, text="Volver al menu", command=self.volver_al_menu )
+        self.btn_volver.pack(pady=20)
+
+        self.protocol("WM_DELETE_WINDOW", self.volver_al_menu)
+    def volver_al_menu(self):
+        self.menu_principal.deiconify()
+        self.destroy()
+
 
     def ejecutar_consulta(self):
         ciudad = self.ciudad.get()
         clima = consulta(ciudad=ciudad)
         if not ciudad:
-            messagebox.showerror("Consulta", "Debe de colocar alguna ciudad antes de hacer la petición")
+            self.info_lbl.configure(text="Error: Debe de colocar alguna ciudad antes de hacer la petición")
             return
         elif clima is None:
-            messagebox.showerror("Consulta", "Ciudad no encontrada")
+            self.info_lbl.configure(text="Error: Ciudad no encontrada o Conexión a internet fallida")
             return
         self.ventanaconsulta = VentanaConsulta(datos=clima)
 
     def ejecutar_seguimiento(self):
         ciudad = self.ciudad.get()
+        if not ciudad:
+            self.info_lbl.configure(text="Error: Debe de colocar alguna ciudad antes de hacer la petición")
+            return
         hora = f"{self.combo_hora.get()}:{self.combo_minutos.get()}"
         estado = seguimiento_cuidad(ciudad_s=ciudad,hora=hora)
 
@@ -143,8 +157,3 @@ class VentanaConsulta(ctk.CTkToplevel):
         )
 
         messagebox.showinfo("Información", text_info)
-
-
-if __name__ == "__main__":
-    ventana = VentanaMenu()
-    ventana.mainloop()

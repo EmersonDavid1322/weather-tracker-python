@@ -149,6 +149,35 @@ def cargar_ciudad_Clima():
 
     return consultas, seguimiento
 
+def editar_seguimiento(id,editar_nombre,nombre,hora):
+
+    conexion = sqlite3.connect("data/traker.db")
+    cursor = conexion.cursor()
+
+    if editar_nombre is True:
+        if hora != None:
+            cursor.execute("""
+            UPDATE seguimiento
+            SET ciudad = ?,
+            hora = ?
+            WHERE id = ?
+            """, (nombre, hora, id))
+        else:
+            cursor.execute("""
+            UPDATE seguimiento
+            SET ciudad = ?
+            WHERE id = ?
+            """, (nombre, id))
+
+    else:
+        cursor.execute("""
+            UPDATE seguimiento
+            SET hora = ?
+            WHERE id = ?
+            """, (hora, id))
+
+    conexion.commit()
+    conexion.close()
 
 def eliminar_ciudad(informacion):
 
