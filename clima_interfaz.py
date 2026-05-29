@@ -79,12 +79,9 @@ class VentanaClima(ctk.CTkToplevel):
             self.info_lbl.configure(text="Error: Debe de colocar alguna ciudad antes de hacer la petición")
             return
         hora = f"{self.combo_hora.get()}:{self.combo_minutos.get()}"
-        estado = seguimiento_cuidad(ciudad_s=ciudad,hora=hora)
+        estado, _ = seguimiento_cuidad(ciudad_s=ciudad,hora=hora)
 
-        if estado == "Repetida":
-            self.info_lbl.configure(text="Error: Ciudad repetida en la lista de seguimiento")
-            return
-        elif estado == "No encontrada":
+        if estado == "No encontrada":
             self.info_lbl.configure(text="Error: Ciudad no encontrada o Conexión a internet fallida")
             return
         elif estado == "Completo":

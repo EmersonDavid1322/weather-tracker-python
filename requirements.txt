@@ -7,3 +7,6 @@ packaging==26.2
 pillow==12.2.0
 requests==2.34.2
 urllib3==2.7.0
+
+plyer
+babel-cli

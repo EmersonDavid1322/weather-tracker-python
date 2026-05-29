@@ -11,8 +11,10 @@ else:
 CARPETA_DATA = os.path.join(ruta_base, "data")
 os.makedirs(CARPETA_DATA, exist_ok=True)
 
+RUTA_DB = os.path.join(CARPETA_DATA, "traker.db")
+
 def crear_tablas():
-    conexion = sqlite3.connect("data/traker.db")
+    conexion = sqlite3.connect(RUTA_DB)
     cursor = conexion.cursor()
 
     cursor.execute("""
@@ -52,7 +54,7 @@ def crear_tablas():
 
 def guardar_ciudad_clima(informacion):
 
-    conexion = sqlite3.connect("data/traker.db")
+    conexion = sqlite3.connect(RUTA_DB)
     cursor = conexion.cursor() 
 
     if informacion.tipo == "Consulta":
@@ -95,7 +97,7 @@ def guardar_ciudad_clima(informacion):
 
         
 def cargar_ciudad_Clima():
-    conexion = sqlite3.connect("data/traker.db")
+    conexion = sqlite3.connect(RUTA_DB)
     cursor = conexion.cursor()
 
     cursor.execute("""
@@ -151,7 +153,7 @@ def cargar_ciudad_Clima():
 
 def editar_seguimiento(id,editar_nombre,nombre,hora):
 
-    conexion = sqlite3.connect("data/traker.db")
+    conexion = sqlite3.connect(RUTA_DB)
     cursor = conexion.cursor()
 
     if editar_nombre is True:
@@ -181,7 +183,7 @@ def editar_seguimiento(id,editar_nombre,nombre,hora):
 
 def eliminar_ciudad(informacion):
 
-    conexion = sqlite3.connect("data/traker.db")
+    conexion = sqlite3.connect(RUTA_DB)
     cursor = conexion.cursor()
 
     tipo = informacion.tipo

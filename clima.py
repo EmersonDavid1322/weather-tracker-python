@@ -1,7 +1,8 @@
 import requests
-from config import API_KEY
+from config import cargar_configutaciones
 
 def obtener_clima(ciudad):
+    API_KEY = cargar_configutaciones()
     url = f"https://api.openweathermap.org/data/2.5/weather?q={ciudad}&appid={API_KEY}&units=metric&lang=es"
     try:
         respuesta = requests.get(url)

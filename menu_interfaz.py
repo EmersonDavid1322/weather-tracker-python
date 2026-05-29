@@ -2,7 +2,8 @@ import customtkinter as ctk
 import tkinter.messagebox as messagebox
 from clima_interfaz import VentanaClima
 from servicios import mostras_seguimiento
-from DB_traker_clima import editar_seguimiento
+from DB_traker_clima import editar_seguimiento, eliminar_ciudad
+from config import guardar_configuraciones, cargar_configutaciones
 
 class VentanaMenu(ctk.CTk):
     def __init__(self):
@@ -25,6 +26,14 @@ class VentanaMenu(ctk.CTk):
         self.seguidas_btn = ctk.CTkButton(self, text="Entrar", command=VentanaSeguidas)
         self.seguidas_btn.pack(pady=10)
 
+        #Configuraciones
+        self.config_lbl = ctk.CTkLabel(self,text="Configuraciones", font=("Roboto", 15, "bold"))
+        self.config_lbl.pack(pady=10)
+
+        self.config_btn = ctk.CTkButton(self,text="Configuraciones", command=VentanaConfiguraciones)
+        self.config_btn.pack(pady=10)
+
+
     def clima(self):
         self.withdraw()
         ventana_hija = VentanaClima(self)
@@ -44,7 +53,7 @@ class VentanaSeguidas(ctk.CTkToplevel):
         self.scroll_segui = ctk.CTkScrollableFrame(self, width=550, height=350)
         self.scroll_segui.pack(padx=10, pady=10, fill="both", expand=True)
 
-        self,self.cargar_seguidas()
+        self.cargar_seguidas()
 
     def cargar_seguidas(self):
         ciudades = mostras_seguimiento()
@@ -60,12 +69,18 @@ class VentanaSeguidas(ctk.CTkToplevel):
             lbl_num = ctk.CTkLabel(fila, text=f"[{numero:03d}]", font=("Consolas", 12), text_color="#5dade2")
             lbl_num.pack(side="left", padx=5)
 
-            lbl_text = ctk.CTkLabel(fila, text=f"| Ciudad: {entrada.ciudad} | Pais: {entrada.pais} | Hora: {entrada.hora} |" )
+            lbl_text = ctk.CTkLabel(fila, text=f"| ID: {entrada.id} | Ciudad: {entrada.ciudad} | Pais: {entrada.pais} | Hora: {entrada.hora} |" )
             lbl_text.pack(side="left",padx=5)
 
-            btn_editar = ctk.CTkButton(fila, text="Editar", command= lambda id_ciudad=entrada.id : VentanaEditar(id=id_ciudad))
+            btn_editar = ctk.CTkButton(fila, text="Editar", width=50, command= lambda id_ciudad=entrada.id : VentanaEditar(id=id_ciudad))
             btn_editar.pack(side="left", padx=5)
 
+            btn_eliminar = ctk.CTkButton(fila, text="Eliminar", width=50, command= lambda ciudad= entrada: self.eliminar(ciudad))
+            btn_eliminar.pack(side="left", padx=5)
+
+    def eliminar(self,ciudad):
+        eliminar_ciudad(ciudad)
+        messagebox.showinfo("Eliminar", "Ciudad eliminada correctamente")
 class VentanaEditar(ctk.CTkToplevel):
     def __init__(self,id):
         super().__init__()
@@ -123,13 +138,51 @@ class VentanaEditar(ctk.CTkToplevel):
                                     hora=hora)
         else:
             editar_seguimiento(id=id,
-                                editar_nombre=editar_seguimiento,
+                                editar_nombre=editar_nombre,
                                 nombre=None,
                                 hora=hora)
         
         messagebox.showinfo("Editar",f"Ciudad {ciudad} editada correctamente")
         self.destroy()
 
+class VentanaConfiguraciones(ctk.CTkToplevel):
+    def __init__(self):
+        super().__init__()
+
+        self.title("Configuraciones")
+        self.geometry("600x400")
+
+        #API
+        self.api_lbl = ctk.CTkLabel(self, text="API Key", font=("Roboto", 15, "bold"))
+        self.api_lbl.pack(pady=10)
+
+        self.api_entrada = ctk.CTkEntry(self, placeholder_text="API Key...",width=400)
+        self.api_entrada.pack(pady=10)
+
+        self.api_btn = ctk.CTkButton(self, text="Guardar",command=self.confi)
+        self.api_btn.pack(pady=10)
+
+        #INFO
+        self.info_btn = ctk.CTkButton(self, text="Info", command=self.informacion_confi)
+        self.info_btn.pack(pady=20)
+
+
+    def confi(self):
+        api = self.api_entrada.get().strip()
+        if api == "":
+            messagebox.showerror("Configraciones","Debe de agregar al menos una opción")
+        else:
+            guardar_configuraciones(api=api)
+            messagebox.showinfo("Configuraciones", "Cambios guardados con exito")
+
+    def informacion_confi(self):
+        api = cargar_configutaciones()
+        
+        self.frame_info = ctk.CTkFrame(self,width=400, height=400, bg_color="transparent")
+        self.frame_info.pack(pady=10)
+
+        self.inf_api = ctk.CTkLabel(self.frame_info, text=f"La API Key actual es: {api}")
+        self.inf_api.pack(pady=10)
 
 
 

@@ -29,15 +29,12 @@ def consulta(ciudad):
 def seguimiento_cuidad(ciudad_s,hora):
     consultas, seg_ciudades = cargar_ciudad_Clima()
     estado = None
-    for ciudad in seg_ciudades:
-        if ciudad.ciudad == ciudad_s:
-            estado = "Repetida"
-            return estado
-        
+
     datos = obtener_clima(ciudad_s)
     if datos is None:
         estado = "No encontrada"
-        return estado
+        clima = None
+        return estado, clima
     else:
         informacion = extraer_clima(datos)
         informacion["Hora"] = hora
@@ -49,20 +46,16 @@ def seguimiento_cuidad(ciudad_s,hora):
         clima = CiudadClima(id=id, tipo=tipo, datos=informacion)
         guardar_ciudad_clima(clima)
         estado =  "Completo"
-        return estado 
+        return estado, clima
 
 def mostras_seguimiento():
-    consultas, seg_ciudades = cargar_ciudad_Clima()
-    if len(seg_ciudades) == 0:
-        confirmacion = input("No hay ciudades en seguimiento, ¿desea añadir una? (S/N): ").lower()
-        return None
-    else:
-        seguimiento_lista = []
-        for ciudad in seg_ciudades:
-            seguimiento_lista.append(ciudad)
-            print(f"| Ciudad: {ciudad.ciudad} | Pais: {ciudad.pais} | Hora: {ciudad.hora} |")
+    _ , seg_ciudades = cargar_ciudad_Clima()
+    seguimiento_lista = []
+    for ciudad in seg_ciudades:
+        seguimiento_lista.append(ciudad)
+        print(f"| Ciudad: {ciudad.ciudad} | Pais: {ciudad.pais} | Hora: {ciudad.hora} |")
 
-        return seguimiento_lista
+    return seguimiento_lista
 
 def editar():
     consutlas, seg_ciudades = cargar_ciudad_Clima()
@@ -82,16 +75,6 @@ def editar():
                     else:
                         print("Hora incorrecta")
     print("Ciudad no encontrada")
-
-def eliminar():
-    consultas, seg_ciudades = cargar_ciudad_Clima()
-    ciudad_eliminar = input("Introduzca el nombre de la cuidad que no desea seguir: ").title()
-    for ciudad in seg_ciudades:
-        if ciudad.ciudad == ciudad_eliminar:
-            eliminar_ciudad(informacion=ciudad)
-            print("Se elimino el seguimiento de: ",ciudad)
-            return
-    print("No se encontro la cuidad")
 
 
 def historial_consultas():
