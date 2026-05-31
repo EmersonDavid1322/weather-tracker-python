@@ -55,6 +55,7 @@ def enviar_notificacion():
 def daemon_clima():
     print("Notificador iniciado...")
 
+
     while True:
         enviar_notificacion()
 
